@@ -203,6 +203,31 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
 
   // Not joined yet
   if (!player) {
+    // Game already started — block new joiners
+    if (room.status !== 'LOBBY') {
+      return (
+        <main className="min-h-dvh flex items-center justify-center p-4">
+          <div className="w-full max-w-sm space-y-4 text-center">
+            <h1 className="text-3xl font-bold text-amber-400">
+              THE PRICE WAR
+            </h1>
+            <div
+              className="p-6 rounded-2xl border space-y-3"
+              style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
+            >
+              <p className="text-2xl font-bold text-red-400">Game In Progress</p>
+              <p className="text-gray-400">
+                This game has already started. You cannot join mid-game.
+              </p>
+              <p className="text-gray-500 text-sm">
+                Please wait for the next game or ask the presenter to create a new room.
+              </p>
+            </div>
+          </div>
+        </main>
+      )
+    }
+
     return (
       <main className="min-h-dvh flex items-center justify-center p-4">
         <div className="w-full max-w-sm space-y-4 text-center">
@@ -311,12 +336,18 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
       )}
 
       {/* Waiting State */}
-      {(room.status === 'LOBBY' || room.status === 'GAME_OVER') && (
+      {room.status === 'LOBBY' && (
         <div className="flex flex-col items-center justify-center flex-1 py-20">
           <p className="text-gray-400 text-lg text-center">
-            {room.status === 'LOBBY'
-              ? 'Waiting for the Presenter to start the game...'
-              : 'Game Over! Check the projector for results.'}
+            Waiting for the Presenter to start the game...
+          </p>
+        </div>
+      )}
+
+      {room.status === 'GAME_OVER' && (
+        <div className="flex flex-col items-center justify-center flex-1 py-20">
+          <p className="text-gray-400 text-lg text-center">
+            Game Over! Check the projector for results.
           </p>
         </div>
       )}
@@ -389,11 +420,6 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                     Below production cost! You will lose money on every unit sold.
                   </div>
                 )}
-                {price && parseInt(price) === minPrice && (
-                  <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 text-sm text-center">
-                    Break-even price — you won&apos;t make any profit at this price.
-                  </div>
-                )}
                 {!price && (
                   <p className="text-gray-500 text-sm text-center">
                     Valid range: {minPrice} – {GAME_CONFIG.ROUND_3_PRICE_CEILING} coins/unit
@@ -402,7 +428,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                 <button
                   onClick={handleSubmitBid}
                   disabled={
-                    loading || !price || parseInt(price) < minPrice || parseInt(price) > GAME_CONFIG.ROUND_3_PRICE_CEILING
+                    loading || !price || parseInt(price) < minPrice || parseInt(price) > GAME_CONFIG.ROUND_3_PRICE_CEILING || secondsLeft <= 0
                   }
                   className={`w-full py-4 rounded-xl font-bold text-lg transition disabled:opacity-50 ${
                     bidSubmitted
@@ -410,7 +436,9 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                       : 'bg-amber-500 hover:bg-amber-400 text-black'
                   }`}
                 >
-                  {loading
+                  {secondsLeft <= 0
+                    ? 'Time\'s Up!'
+                    : loading
                     ? 'Submitting...'
                     : bidSubmitted
                     ? `Bid Updated: ${price} coins/unit`

@@ -33,7 +33,7 @@ export default function PresenterDashboard({
   const activePlayers = players.filter((p) => !p.is_bankrupt)
   const bankruptPlayers = players.filter((p) => p.is_bankrupt)
   const roundNumber = getRoundNumber(room.status)
-  const joinUrl = typeof window !== 'undefined' ? `${window.location.origin}` : ''
+  const joinUrl = typeof window !== 'undefined' ? `${window.location.origin}/play/${initialRoom.id}` : ''
 
   const isBidding = room.status.includes('BIDDING')
 
