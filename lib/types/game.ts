@@ -25,7 +25,8 @@ export function calculateDemand(
 ): number {
   switch (roundNumber) {
     case 1:
-      return Math.ceil((totalPlayers * 100) / 2)
+      const baseDemand = (totalPlayers * 100) / 2;
+      return Math.ceil(baseDemand / 100) * 100;
     case 2:
       return patentHolders * 100 + 200
     case 3:
