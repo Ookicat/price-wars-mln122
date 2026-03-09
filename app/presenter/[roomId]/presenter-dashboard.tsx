@@ -328,37 +328,69 @@ export default function PresenterDashboard({
 
           {/* Next Phase Button */}
           <div className="flex gap-4">
-            {room.status === 'ROUND_1_RESULTS' && (
-              <button
-                onClick={() =>
-                  handleAction(() => openPatentShop(room.id))
-                }
-                disabled={loading}
-                className="flex-1 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xl transition disabled:opacity-50"
-              >
-                {loading ? 'Opening...' : 'Open Patent Shop'}
-              </button>
-            )}
-            {room.status === 'ROUND_2_RESULTS' && (
-              <button
-                onClick={() =>
-                  handleAction(() => startRound(room.id, 3))
-                }
-                disabled={loading}
-                className="flex-1 py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xl transition disabled:opacity-50"
-              >
-                {loading ? 'Starting...' : 'Start Round 3'}
-              </button>
-            )}
-            {room.status === 'ROUND_3_RESULTS' && (
-              <button
-                onClick={() => handleAction(() => endGame(room.id))}
-                disabled={loading}
-                className="flex-1 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl transition disabled:opacity-50"
-              >
-                {loading ? 'Ending...' : 'End Game'}
-              </button>
-            )}
+            {(() => {
+              // Check if any active player can afford to stock up next round
+              const canAnyoneAffordNextRound = activePlayers.some((p) => {
+                const cost = p.has_patent
+                  ? GAME_CONFIG.PRODUCTION_COST_PATENT * GAME_CONFIG.UNITS_PER_STOCK
+                  : GAME_CONFIG.PRODUCTION_COST_NORMAL * GAME_CONFIG.UNITS_PER_STOCK
+                return p.cash >= cost
+              })
+
+              // If no one can afford to stock up and it's not already round 3 results, show Game Over
+              if (!canAnyoneAffordNextRound && room.status !== 'ROUND_3_RESULTS') {
+                return (
+                  <>
+                    <div className="w-full p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-sm text-center">
+                      No player has enough balance to stock up for the next round.
+                    </div>
+                    <button
+                      onClick={() => handleAction(() => endGame(room.id))}
+                      disabled={loading}
+                      className="flex-1 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl transition disabled:opacity-50"
+                    >
+                      {loading ? 'Ending...' : 'End Game'}
+                    </button>
+                  </>
+                )
+              }
+
+              return (
+                <>
+                  {room.status === 'ROUND_1_RESULTS' && (
+                    <button
+                      onClick={() =>
+                        handleAction(() => openPatentShop(room.id))
+                      }
+                      disabled={loading}
+                      className="flex-1 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xl transition disabled:opacity-50"
+                    >
+                      {loading ? 'Opening...' : 'Open Patent Shop'}
+                    </button>
+                  )}
+                  {room.status === 'ROUND_2_RESULTS' && (
+                    <button
+                      onClick={() =>
+                        handleAction(() => startRound(room.id, 3))
+                      }
+                      disabled={loading}
+                      className="flex-1 py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xl transition disabled:opacity-50"
+                    >
+                      {loading ? 'Starting...' : 'Start Round 3'}
+                    </button>
+                  )}
+                  {room.status === 'ROUND_3_RESULTS' && (
+                    <button
+                      onClick={() => handleAction(() => endGame(room.id))}
+                      disabled={loading}
+                      className="flex-1 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl transition disabled:opacity-50"
+                    >
+                      {loading ? 'Ending...' : 'End Game'}
+                    </button>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </div>
       )}
