@@ -365,20 +365,44 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                 <input
                   type="number"
                   min={minPrice}
+                  max={GAME_CONFIG.ROUND_3_PRICE_CEILING}
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder={`Min: ${minPrice}`}
-                  className="w-full px-4 py-4 rounded-xl bg-black/50 border border-gray-700 text-center text-3xl font-bold focus:outline-none focus:border-amber-400 transition tabular-nums"
+                  onChange={(e) => {
+                    const val = e.target.value
+                    if (val === '' || /^\d+$/.test(val)) setPrice(val)
+                  }}
+                  placeholder={`${minPrice} – ${GAME_CONFIG.ROUND_3_PRICE_CEILING}`}
+                  className={`w-full px-4 py-4 rounded-xl bg-black/50 border text-center text-3xl font-bold focus:outline-none transition tabular-nums ${
+                    price && (parseInt(price) < minPrice || parseInt(price) > GAME_CONFIG.ROUND_3_PRICE_CEILING)
+                      ? 'border-red-500 focus:border-red-400'
+                      : 'border-gray-700 focus:border-amber-400'
+                  }`}
                 />
-                <p className="text-gray-500 text-sm text-center">
-                  Tips: To make profits, bid {minPrice} or higher
-                  {roundNumber === 3 &&
-                    `. Max price: ${GAME_CONFIG.ROUND_3_PRICE_CEILING}`}
-                </p>
+                {/* Validation warnings */}
+                {price && parseInt(price) > GAME_CONFIG.ROUND_3_PRICE_CEILING && (
+                  <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-sm text-center">
+                    Customers won&apos;t buy at this price! Max: {GAME_CONFIG.ROUND_3_PRICE_CEILING} coins/unit
+                  </div>
+                )}
+                {price && parseInt(price) > 0 && parseInt(price) < minPrice && (
+                  <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-sm text-center">
+                    Below production cost! You will lose money on every unit sold.
+                  </div>
+                )}
+                {price && parseInt(price) === minPrice && (
+                  <div className="p-2 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 text-sm text-center">
+                    Break-even price — you won&apos;t make any profit at this price.
+                  </div>
+                )}
+                {!price && (
+                  <p className="text-gray-500 text-sm text-center">
+                    Valid range: {minPrice} – {GAME_CONFIG.ROUND_3_PRICE_CEILING} coins/unit
+                  </p>
+                )}
                 <button
                   onClick={handleSubmitBid}
                   disabled={
-                    loading || !price || parseInt(price) < minPrice
+                    loading || !price || parseInt(price) < minPrice || parseInt(price) > GAME_CONFIG.ROUND_3_PRICE_CEILING
                   }
                   className={`w-full py-4 rounded-xl font-bold text-lg transition disabled:opacity-50 ${
                     bidSubmitted

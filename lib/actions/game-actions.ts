@@ -69,6 +69,8 @@ export async function submitBid(
     ? GAME_CONFIG.MIN_PRICE_PATENT
     : GAME_CONFIG.MIN_PRICE_NORMAL
   if (price < minPrice) throw new Error(`Minimum price is ${minPrice}`)
+  if (price > GAME_CONFIG.ROUND_3_PRICE_CEILING)
+    throw new Error(`Maximum price is ${GAME_CONFIG.ROUND_3_PRICE_CEILING}`)
 
   // Upsert bid (update if already exists for this round)
   const { data: existingBid } = await supabase
