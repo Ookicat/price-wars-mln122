@@ -1,65 +1,122 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createRoom, getRoom } from '@/lib/actions/room-actions'
 
 export default function Home() {
+  const router = useRouter()
+  const [roomCode, setRoomCode] = useState('')
+  const [playerName, setPlayerName] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleCreateRoom = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const room = await createRoom()
+      router.push(`/presenter/${room.id}`)
+    } catch {
+      setError('Failed to create room')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleJoinRoom = async () => {
+    if (!roomCode.trim() || !playerName.trim()) {
+      setError('Please enter both room code and name')
+      return
+    }
+    setLoading(true)
+    setError('')
+    try {
+      const room = await getRoom(roomCode.toUpperCase())
+      if (!room) {
+        setError('Room not found')
+        return
+      }
+      router.push(
+        `/play/${room.id}?name=${encodeURIComponent(playerName.trim())}`
+      )
+    } catch {
+      setError('Failed to find room')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="min-h-dvh flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+        {/* Title */}
+        <div className="text-center">
+          <h1 className="text-5xl font-bold text-amber-400 mb-2">
+            THE PRICE WAR
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-gray-400 text-lg">
+            Educational Economic Simulator
+          </p>
+          <p className="text-gray-500 text-sm mt-1">
+            Goal: Reach <span className="text-amber-400 font-bold">5,000 Coins</span> by Round 3
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        {/* Join Game */}
+        <div
+          className="p-6 rounded-2xl border space-y-4"
+          style={{
+            background: 'var(--card)',
+            borderColor: 'var(--card-border)',
+          }}
+        >
+          <h2 className="text-xl font-semibold text-center">Join Game</h2>
+          <input
+            type="text"
+            placeholder="Room Code (e.g. A4B2)"
+            value={roomCode}
+            onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+            maxLength={4}
+            className="w-full px-4 py-3 rounded-xl bg-black/50 border border-gray-700 text-center text-2xl tracking-widest uppercase focus:outline-none focus:border-amber-400 transition"
+          />
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            maxLength={20}
+            className="w-full px-4 py-3 rounded-xl bg-black/50 border border-gray-700 text-center text-lg focus:outline-none focus:border-amber-400 transition"
+          />
+          <button
+            onClick={handleJoinRoom}
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-lg transition disabled:opacity-50"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {loading ? 'Joining...' : 'JOIN GAME'}
+          </button>
         </div>
-      </main>
-    </div>
-  );
+
+        {/* Divider */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-gray-700" />
+          <span className="text-gray-500 text-sm">OR</span>
+          <div className="flex-1 h-px bg-gray-700" />
+        </div>
+
+        {/* Create Room */}
+        <button
+          onClick={handleCreateRoom}
+          disabled={loading}
+          className="w-full py-3 rounded-xl border-2 border-amber-500/50 hover:border-amber-400 text-amber-400 font-bold text-lg transition disabled:opacity-50"
+        >
+          {loading ? 'Creating...' : 'Create Room (Presenter)'}
+        </button>
+
+        {error && (
+          <p className="text-red-400 text-center text-sm">{error}</p>
+        )}
+      </div>
+    </main>
+  )
 }
