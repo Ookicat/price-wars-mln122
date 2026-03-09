@@ -13,9 +13,9 @@ export async function stockUp(playerId: string, roomId: string) {
     .eq('id', playerId)
     .single()
 
-  if (pErr || !player) throw new Error('Player not found')
-  if (player.is_bankrupt) throw new Error('Player is bankrupt')
-  if (player.has_stocked_up) throw new Error('Already stocked up this round')
+  if (pErr || !player) throw new Error('Không tìm thấy người chơi')
+  if (player.is_bankrupt) throw new Error('Người chơi đã phá sản')
+  if (player.has_stocked_up) throw new Error('Đã nhập hàng rồi trong vòng này')
 
   const costPerUnit = player.has_patent
     ? GAME_CONFIG.PRODUCTION_COST_PATENT
@@ -26,10 +26,14 @@ export async function stockUp(playerId: string, roomId: string) {
     // Player cannot afford to stock up — bankrupt them
     await supabase
       .from('players')
-      .update({ is_bankrupt: true, cash: 0 })
+      .update({
+        is_bankrupt: true,
+        cash: 0,
+        bankrupt_reason: `Không đủ tiền nhập hàng (cần ${totalCost} xu, chỉ có ${player.cash} xu)`,
+      })
       .eq('id', playerId)
 
-    throw new Error('Not enough cash to stock up — you are bankrupt!')
+    throw new Error('Không đủ tiền nhập hàng — bạn đã phá sản!')
   }
 
   const { error } = await supabase
@@ -40,7 +44,7 @@ export async function stockUp(playerId: string, roomId: string) {
     })
     .eq('id', playerId)
 
-  if (error) throw new Error('Failed to stock up')
+  if (error) throw new Error('Không thể nhập hàng')
 
   return { newCash: player.cash - totalCost, cost: totalCost }
 }
@@ -60,17 +64,17 @@ export async function submitBid(
     .eq('id', playerId)
     .single()
 
-  if (!player) throw new Error('Player not found')
-  if (player.is_bankrupt) throw new Error('Player is bankrupt')
-  if (!player.has_stocked_up) throw new Error('Must stock up before bidding')
+  if (!player) throw new Error('Không tìm thấy người chơi')
+  if (player.is_bankrupt) throw new Error('Người chơi đã phá sản')
+  if (!player.has_stocked_up) throw new Error('Phải nhập hàng trước khi đặt giá')
 
   // Validate minimum price
   const minPrice = player.has_patent
     ? GAME_CONFIG.MIN_PRICE_PATENT
     : GAME_CONFIG.MIN_PRICE_NORMAL
-  if (price < minPrice) throw new Error(`Minimum price is ${minPrice}`)
+  if (price < minPrice) throw new Error(`Giá tối thiểu là ${minPrice}`)
   if (price > GAME_CONFIG.ROUND_3_PRICE_CEILING)
-    throw new Error(`Maximum price is ${GAME_CONFIG.ROUND_3_PRICE_CEILING}`)
+    throw new Error(`Giá tối đa là ${GAME_CONFIG.ROUND_3_PRICE_CEILING}`)
 
   // Upsert bid (update if already exists for this round)
   const { data: existingBid } = await supabase
@@ -87,7 +91,7 @@ export async function submitBid(
       .update({ price_submitted: price, submitted_at: new Date().toISOString() })
       .eq('id', existingBid.id)
 
-    if (error) throw new Error('Failed to update bid')
+    if (error) throw new Error('Không thể cập nhật giá')
   } else {
     const { error } = await supabase
       .from('bids')
@@ -98,7 +102,7 @@ export async function submitBid(
         price_submitted: price,
       })
 
-    if (error) throw new Error('Failed to submit bid')
+    if (error) throw new Error('Không thể gửi giá')
   }
 
   return { success: true }
@@ -114,7 +118,7 @@ export async function startRound(roomId: string, roundNumber: number) {
     .eq('room_id', roomId)
     .eq('is_bankrupt', false)
 
-  if (!players || players.length === 0) throw new Error('No active players')
+  if (!players || players.length === 0) throw new Error('Không có người chơi')
 
   // Count patent holders for demand calc
   const patentHolders = players.filter((p) => p.has_patent).length
@@ -150,7 +154,7 @@ export async function startRound(roomId: string, roundNumber: number) {
     })
     .eq('id', roomId)
 
-  if (error) throw new Error('Failed to start round')
+  if (error) throw new Error('Không thể bắt đầu vòng')
 
   return { demand, playerCount: players.length }
 }
@@ -165,7 +169,7 @@ export async function openPatentShop(roomId: string) {
     .eq('room_id', roomId)
     .eq('is_bankrupt', false)
 
-  if (!players) throw new Error('No players')
+  if (!players) throw new Error('Không có người chơi')
 
   const patentsAvailable = Math.floor(players.length / 2)
 
@@ -178,7 +182,7 @@ export async function openPatentShop(roomId: string) {
     })
     .eq('id', roomId)
 
-  if (error) throw new Error('Failed to open patent shop')
+  if (error) throw new Error('Không thể mở cửa hàng bằng SC')
 
   return { patentsAvailable }
 }
@@ -190,14 +194,14 @@ export async function buyPatent(playerId: string) {
     p_player_id: playerId,
   })
 
-  if (error) throw new Error(`Patent purchase failed: ${error.message}`)
+  if (error) throw new Error(`Mua bằng SC thất bại: ${error.message}`)
 
   const result = data as unknown as {
     success: boolean
     error?: string
     remaining?: number
   }
-  if (!result.success) throw new Error(result.error || 'Patent purchase failed')
+  if (!result.success) throw new Error(result.error || 'Mua bằng SC thất bại')
 
   return result
 }
@@ -212,7 +216,7 @@ export async function resolveRound(roomId: string, roundNumber: number) {
     .eq('id', roomId)
     .single()
 
-  if (!room) throw new Error('Room not found')
+  if (!room) throw new Error('Không tìm thấy phòng')
 
   const currentDemand = room.current_demand
 
@@ -224,7 +228,7 @@ export async function resolveRound(roomId: string, roundNumber: number) {
     .eq('round_number', roundNumber)
     .order('price_submitted', { ascending: true })
 
-  if (!bids) throw new Error('No bids found')
+  if (!bids) throw new Error('Không tìm thấy giá đặt')
 
   // Sort by price (ascending), then by submitted_at (earlier first)
   const sortedBids = [...bids].sort((a, b) => {
@@ -286,6 +290,7 @@ export async function resolveRound(roomId: string, roundNumber: number) {
         .update({
           cash: newCash,
           is_bankrupt: newCash <= 0,
+          ...(newCash <= 0 ? { bankrupt_reason: 'Mất hết vốn do cạnh tranh thị trường — không có doanh thu sau khi trả chi phí sản xuất' } : {}),
         })
         .eq('id', update.playerId)
     }
@@ -304,7 +309,10 @@ export async function resolveRound(roomId: string, roundNumber: number) {
         if (player && player.cash <= 0) {
           await supabase
             .from('players')
-            .update({ is_bankrupt: true })
+            .update({
+              is_bankrupt: true,
+              bankrupt_reason: 'Không gửi giá đặt — mất chi phí sản xuất mà không có doanh thu',
+            })
             .eq('id', ap.id)
         }
       }

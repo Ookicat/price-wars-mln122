@@ -22,7 +22,7 @@ export async function createRoom(): Promise<Room> {
     .select()
     .single()
 
-  if (error || !data) throw new Error(`Failed to create room: ${error?.message}`)
+  if (error || !data) throw new Error(`Không thể tạo phòng: ${error?.message}`)
   return data as Room
 }
 

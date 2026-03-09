@@ -18,7 +18,7 @@ export default function Home() {
       const room = await createRoom()
       router.push(`/presenter/${room.id}`)
     } catch {
-      setError('Failed to create room')
+      setError('Không thể tạo phòng')
     } finally {
       setLoading(false)
     }
@@ -26,7 +26,7 @@ export default function Home() {
 
   const handleJoinRoom = async () => {
     if (!roomCode.trim() || !playerName.trim()) {
-      setError('Please enter both room code and name')
+      setError('Vui lòng nhập mã phòng và tên')
       return
     }
     setLoading(true)
@@ -34,14 +34,14 @@ export default function Home() {
     try {
       const room = await getRoom(roomCode.toUpperCase())
       if (!room) {
-        setError('Room not found')
+        setError('Không tìm thấy phòng')
         return
       }
       router.push(
         `/play/${room.id}?name=${encodeURIComponent(playerName.trim())}`
       )
     } catch {
-      setError('Failed to find room')
+      setError('Không thể tìm phòng')
     } finally {
       setLoading(false)
     }
@@ -53,13 +53,13 @@ export default function Home() {
         {/* Title */}
         <div className="text-center">
           <h1 className="text-5xl font-bold text-amber-400 mb-2">
-            THE PRICE WAR
+            CUỘC CHIẾN GIÁ CẢ
           </h1>
           <p className="text-gray-400 text-lg">
-            Educational Economic Simulator
+            Trò chơi mô phỏng kinh tế
           </p>
           <p className="text-gray-500 text-sm mt-1">
-            Goal: Reach <span className="text-amber-400 font-bold">5,000 Coins</span> by Round 3
+            Mục tiêu: Đạt <span className="text-amber-400 font-bold">5.000 Xu</span> sau Vòng 3
           </p>
         </div>
 
@@ -71,10 +71,10 @@ export default function Home() {
             borderColor: 'var(--card-border)',
           }}
         >
-          <h2 className="text-xl font-semibold text-center">Join Game</h2>
+          <h2 className="text-xl font-semibold text-center">Tham Gia Trò Chơi</h2>
           <input
             type="text"
-            placeholder="Room Code (e.g. A4B2)"
+            placeholder="Mã phòng (VD: A4B2)"
             value={roomCode}
             onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
             maxLength={4}
@@ -82,7 +82,7 @@ export default function Home() {
           />
           <input
             type="text"
-            placeholder="Your Name"
+            placeholder="Tên của bạn"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
             maxLength={20}
@@ -93,14 +93,14 @@ export default function Home() {
             disabled={loading}
             className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-lg transition disabled:opacity-50"
           >
-            {loading ? 'Joining...' : 'JOIN GAME'}
+            {loading ? 'Đang vào...' : 'VÀO CHƠI'}
           </button>
         </div>
 
         {/* Divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px bg-gray-700" />
-          <span className="text-gray-500 text-sm">OR</span>
+          <span className="text-gray-500 text-sm">HOẶC</span>
           <div className="flex-1 h-px bg-gray-700" />
         </div>
 
@@ -110,7 +110,7 @@ export default function Home() {
           disabled={loading}
           className="w-full py-3 rounded-xl border-2 border-amber-500/50 hover:border-amber-400 text-amber-400 font-bold text-lg transition disabled:opacity-50"
         >
-          {loading ? 'Creating...' : 'Create Room (Presenter)'}
+          {loading ? 'Đang tạo...' : 'Tạo Phòng (Người dẫn)'}
         </button>
 
         {error && (

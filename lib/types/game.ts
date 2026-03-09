@@ -11,6 +11,13 @@ export const GAME_CONFIG = {
   MIN_PRICE_PATENT: 6,
 } as const
 
+export const COOKIE_BRANDS = ['OREO', 'Magic', 'ChocoPie', 'Solite'] as const
+export type CookieBrand = (typeof COOKIE_BRANDS)[number]
+
+export function getRandomBrand(): CookieBrand {
+  return COOKIE_BRANDS[Math.floor(Math.random() * COOKIE_BRANDS.length)]
+}
+
 export function getRoundNumber(status: string): number {
   if (status.includes('ROUND_1')) return 1
   if (status.includes('ROUND_2')) return 2

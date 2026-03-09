@@ -28,6 +28,8 @@ export interface Player {
   has_patent: boolean
   is_bankrupt: boolean
   has_stocked_up: boolean
+  cookie_brand: string
+  bankrupt_reason: string | null
   created_at: string
 }
 

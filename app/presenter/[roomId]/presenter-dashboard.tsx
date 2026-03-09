@@ -81,14 +81,14 @@ export default function PresenterDashboard({
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-amber-400">
-            THE PRICE WAR
+            CUỘC CHIẾN GIÁ CẢ
           </h1>
           <p className="text-gray-400">
-            Room: <span className="text-2xl font-mono font-bold text-white">{room.room_code}</span>
+            Phòng: <span className="text-2xl font-mono font-bold text-white">{room.room_code}</span>
           </p>
         </div>
         <div className="text-right">
-          <p className="text-gray-400 text-sm">Status</p>
+          <p className="text-gray-400 text-sm">Trạng thái</p>
           <p className="text-lg font-semibold text-amber-400">
             {room.status.replace(/_/g, ' ')}
           </p>
@@ -116,18 +116,18 @@ export default function PresenterDashboard({
               level="M"
             />
             <div className="text-center">
-              <p className="text-gray-400">Room Code</p>
+              <p className="text-gray-400">Mã phòng</p>
               <p className="text-6xl font-mono font-bold text-amber-400 tracking-widest">
                 {room.room_code}
               </p>
             </div>
             <div className="text-center text-gray-400">
               <p>
-                Goal: Reach{' '}
-                <span className="text-amber-400 font-bold">5,000 Coins</span>
+                Mục tiêu: Đạt{' '}
+                <span className="text-amber-400 font-bold">5.000 Xu</span>
               </p>
               <p className="text-sm mt-1">
-                Players joined:{' '}
+                Người chơi đã vào:{' '}
                 <span className="text-white font-bold">{players.length}</span>
               </p>
             </div>
@@ -137,8 +137,8 @@ export default function PresenterDashboard({
               className="w-full py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xl transition disabled:opacity-50"
             >
               {loading
-                ? 'Starting...'
-                : `Start Round 1 (${players.length} players)`}
+                ? 'Đang bắt đầu...'
+                : `Bắt đầu Vòng 1 (${players.length} người chơi)`}
             </button>
           </div>
 
@@ -147,7 +147,7 @@ export default function PresenterDashboard({
             className="p-6 rounded-2xl border"
             style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
           >
-            <h2 className="text-xl font-semibold mb-4">Players</h2>
+            <h2 className="text-xl font-semibold mb-4">Người chơi</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto">
               {players.map((p, i) => (
                 <div
@@ -156,7 +156,7 @@ export default function PresenterDashboard({
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <p className="font-semibold truncate">{p.name}</p>
-                  <p className="text-sm text-gray-400">{p.cash} coins</p>
+                  <p className="text-sm text-gray-400">{p.cash} xu · {p.cookie_brand}</p>
                 </div>
               ))}
             </div>
@@ -172,24 +172,24 @@ export default function PresenterDashboard({
               className="p-6 rounded-2xl border text-center"
               style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
             >
-              <p className="text-gray-400 text-sm">Round</p>
+              <p className="text-gray-400 text-sm">Vòng</p>
               <p className="text-4xl font-bold text-amber-400">{roundNumber}</p>
             </div>
             <div
               className="p-6 rounded-2xl border text-center"
               style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
             >
-              <p className="text-gray-400 text-sm">Demand</p>
+              <p className="text-gray-400 text-sm">Nhu cầu</p>
               <p className="text-4xl font-bold text-green-400">
                 {room.current_demand}
               </p>
-              <p className="text-xs text-gray-500">units needed</p>
+              <p className="text-xs text-gray-500">lô cần mua</p>
             </div>
             <div
               className="p-6 rounded-2xl border text-center"
               style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
             >
-              <p className="text-gray-400 text-sm">Bids Received</p>
+              <p className="text-gray-400 text-sm">Đã đặt giá</p>
               <p className="text-4xl font-bold text-blue-400">
                 {bidsCount} / {activePlayers.length}
               </p>
@@ -205,7 +205,7 @@ export default function PresenterDashboard({
             >
               {secondsLeft}
             </p>
-            <p className="text-gray-400 mt-2">seconds remaining</p>
+            <p className="text-gray-400 mt-2">giây còn lại</p>
           </div>
 
           <button
@@ -215,7 +215,7 @@ export default function PresenterDashboard({
             disabled={loading}
             className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xl transition disabled:opacity-50"
           >
-            {loading ? 'Resolving...' : `End Round ${roundNumber}`}
+            {loading ? 'Đang xử lý...' : `Kết thúc Vòng ${roundNumber}`}
           </button>
         </div>
       )}
@@ -228,18 +228,18 @@ export default function PresenterDashboard({
             style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
           >
             <h2 className="text-3xl font-bold text-purple-400 mb-4">
-              PATENT SHOP OPEN
+              CỬA HÀNG BẲNG SÁNG CHẾ ĐÃ MỞ
             </h2>
             <p className="text-gray-400 text-lg">
-              Patents:{' '}
+              Bằng sáng chế:{' '}
               <span className="text-white font-bold">{room.patents_sold}</span> /{' '}
               <span className="text-amber-400 font-bold">
                 {room.patents_available}
               </span>{' '}
-              sold
+              đã bán
             </p>
             <p className="text-gray-500 mt-2">
-              Players are buying patents on their phones...
+              Người chơi đang mua bằng sáng chế trên điện thoại...
             </p>
           </div>
           <button
@@ -247,7 +247,7 @@ export default function PresenterDashboard({
             disabled={loading}
             className="w-full py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xl transition disabled:opacity-50"
           >
-            {loading ? 'Starting...' : 'Start Round 2'}
+            {loading ? 'Đang bắt đầu...' : 'Bắt đầu Vòng 2'}
           </button>
         </div>
       )}
@@ -256,7 +256,7 @@ export default function PresenterDashboard({
       {room.status.includes('RESULTS') && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-center">
-            Round {roundNumber} Results
+            Kết quả Vòng {roundNumber}
           </h2>
 
           {/* Bar Chart */}
@@ -282,9 +282,12 @@ export default function PresenterDashboard({
                       <span className="w-6 text-right text-gray-500 text-sm">
                         {index + 1}
                       </span>
-                      <span className="w-28 truncate text-sm font-medium">
+                      <span className="w-32 truncate text-sm font-medium">
                         {player.name}
                         {player.has_patent && ' [P]'}
+                        <span className="text-xs text-gray-500 ml-1">
+                          {player.cookie_brand}
+                        </span>
                       </span>
                       <div className="flex-1 h-8 bg-black/30 rounded-lg overflow-hidden relative">
                         <div
@@ -300,18 +303,18 @@ export default function PresenterDashboard({
                           }}
                         >
                           <span className="text-xs font-bold text-black whitespace-nowrap">
-                            {player.cash} coins
+                            {player.cash} xu
                           </span>
                         </div>
                       </div>
                       {player.is_bankrupt && (
                         <span className="text-red-400 text-xs font-bold">
-                          BANKRUPT
+                          PHÁ SẢN
                         </span>
                       )}
                       {isWinner && (
                         <span className="text-amber-400 text-xs font-bold">
-                          WINNER
+                          THẮNG
                         </span>
                       )}
                     </div>
@@ -322,8 +325,8 @@ export default function PresenterDashboard({
 
           {/* Win condition line */}
           <div className="text-center text-gray-400 text-sm">
-            Win Condition: 5,000 coins | Active: {activePlayers.length} |
-            Bankrupt: {bankruptPlayers.length}
+            Điều kiện thắng: 5.000 xu | Còn lại: {activePlayers.length} |
+            Phá sản: {bankruptPlayers.length}
           </div>
 
           {/* Next Phase Button */}
@@ -342,14 +345,14 @@ export default function PresenterDashboard({
                 return (
                   <>
                     <div className="w-full p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 text-sm text-center">
-                      No player has enough balance to stock up for the next round.
+                      Không có người chơi nào đủ tiền để nhập hàng cho vòng tiếp theo.
                     </div>
                     <button
                       onClick={() => handleAction(() => endGame(room.id))}
                       disabled={loading}
                       className="flex-1 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl transition disabled:opacity-50"
                     >
-                      {loading ? 'Ending...' : 'End Game'}
+                      {loading ? 'Đang kết thúc...' : 'Kết thúc trò chơi'}
                     </button>
                   </>
                 )
@@ -365,19 +368,30 @@ export default function PresenterDashboard({
                       disabled={loading}
                       className="flex-1 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xl transition disabled:opacity-50"
                     >
-                      {loading ? 'Opening...' : 'Open Patent Shop'}
+                      {loading ? 'Đang mở...' : 'Mở cửa hàng Bằng SC'}
                     </button>
                   )}
                   {room.status === 'ROUND_2_RESULTS' && (
-                    <button
-                      onClick={() =>
-                        handleAction(() => startRound(room.id, 3))
-                      }
-                      disabled={loading}
-                      className="flex-1 py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xl transition disabled:opacity-50"
-                    >
-                      {loading ? 'Starting...' : 'Start Round 3'}
-                    </button>
+                    <>
+                      {players.some((p) => !p.is_bankrupt && p.cash >= GAME_CONFIG.WIN_CONDITION) && (
+                        <button
+                          onClick={() => handleAction(() => endGame(room.id))}
+                          disabled={loading}
+                          className="flex-1 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl transition disabled:opacity-50"
+                        >
+                          {loading ? 'Đang kết thúc...' : 'Kết thúc (Có người thắng sớm!)'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() =>
+                          handleAction(() => startRound(room.id, 3))
+                        }
+                        disabled={loading}
+                        className="flex-1 py-4 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xl transition disabled:opacity-50"
+                      >
+                        {loading ? 'Đang bắt đầu...' : 'Bắt đầu Vòng 3'}
+                      </button>
+                    </>
                   )}
                   {room.status === 'ROUND_3_RESULTS' && (
                     <button
@@ -385,7 +399,7 @@ export default function PresenterDashboard({
                       disabled={loading}
                       className="flex-1 py-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xl transition disabled:opacity-50"
                     >
-                      {loading ? 'Ending...' : 'End Game'}
+                      {loading ? 'Đang kết thúc...' : 'Kết thúc trò chơi'}
                     </button>
                   )}
                 </>
@@ -398,7 +412,7 @@ export default function PresenterDashboard({
       {/* Game Over */}
       {room.status === 'GAME_OVER' && (
         <div className="text-center space-y-8">
-          <h2 className="text-5xl font-bold text-amber-400">GAME OVER</h2>
+          <h2 className="text-5xl font-bold text-amber-400">KẾT THÚC</h2>
           <div
             className="p-6 rounded-2xl border"
             style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
@@ -410,13 +424,13 @@ export default function PresenterDashboard({
                   key={p.id}
                   className="text-2xl font-bold text-amber-400 mb-2"
                 >
-                  {p.name} — {p.cash} Coins
+                  {p.name} — {p.cash} Xu
                 </div>
               ))}
             {players.filter((p) => p.cash >= GAME_CONFIG.WIN_CONDITION)
               .length === 0 && (
               <p className="text-xl text-gray-400">
-                No one reached 5,000 Coins! The market claimed everyone.
+                Không ai đạt 5.000 Xu! Thị trường đã nuốt chừng tất cả.
               </p>
             )}
           </div>
@@ -424,7 +438,7 @@ export default function PresenterDashboard({
             className="p-6 rounded-2xl border"
             style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
           >
-            <h3 className="text-lg font-semibold mb-4">Final Standings</h3>
+            <h3 className="text-lg font-semibold mb-4">Xếp hạng cuối cùng</h3>
             <div className="space-y-2">
               {[...players]
                 .sort((a, b) => b.cash - a.cash)
@@ -434,7 +448,9 @@ export default function PresenterDashboard({
                     className="flex justify-between items-center"
                   >
                     <span>
-                      #{i + 1} {p.name} {p.has_patent && '[P]'}{' '}
+                      #{i + 1} {p.name}{' '}
+                      <span className="text-xs text-gray-500">({p.cookie_brand})</span>
+                      {p.has_patent && ' [P]'}{' '}
                       {p.is_bankrupt && '[X]'}
                     </span>
                     <span
@@ -442,7 +458,7 @@ export default function PresenterDashboard({
                         p.is_bankrupt ? 'text-red-400' : 'text-green-400'
                       }
                     >
-                      {p.cash} coins
+                      {p.cash} xu
                     </span>
                   </div>
                 ))}

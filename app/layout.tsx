@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'The Price War',
-  description: 'Educational Multiplayer Economic Simulator',
+  title: 'Cuộc Chiến Giá Cả',
+  description: 'Trò chơi mô phỏng kinh tế nhiều người chơi',
 }
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body className="antialiased">{children}</body>
     </html>
   )

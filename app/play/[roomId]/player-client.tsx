@@ -148,7 +148,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
       setPlayerId(p.id)
       localStorage.setItem(`player_${initialRoom.id}`, p.id)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to join')
+      setError(err instanceof Error ? err.message : 'Không thể tham gia')
     } finally {
       setJoining(false)
     }
@@ -165,7 +165,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
       const p = await getPlayer(playerId)
       if (p) setPlayer(p)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to stock up')
+      setError(err instanceof Error ? err.message : 'Không thể nhập hàng')
     } finally {
       setLoading(false)
     }
@@ -179,7 +179,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
       await submitBid(initialRoom.id, playerId, parseInt(price), roundNumber)
       setBidSubmitted(true)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to submit bid')
+      setError(err instanceof Error ? err.message : 'Không thể đặt giá')
     } finally {
       setLoading(false)
     }
@@ -195,7 +195,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
       const p = await getPlayer(playerId)
       if (p) setPlayer(p)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to buy patent')
+      setError(err instanceof Error ? err.message : 'Không thể mua bằng sáng chế')
     } finally {
       setLoading(false)
     }
@@ -209,18 +209,18 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
         <main className="min-h-dvh flex items-center justify-center p-4">
           <div className="w-full max-w-sm space-y-4 text-center">
             <h1 className="text-3xl font-bold text-amber-400">
-              THE PRICE WAR
+              CUỘC CHIẾN GIÁ CẢ
             </h1>
             <div
               className="p-6 rounded-2xl border space-y-3"
               style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
             >
-              <p className="text-2xl font-bold text-red-400">Game In Progress</p>
+              <p className="text-2xl font-bold text-red-400">Đang Chơi</p>
               <p className="text-gray-400">
-                This game has already started. You cannot join mid-game.
+                Trò chơi đã bắt đầu. Bạn không thể tham gia giữa chừng.
               </p>
               <p className="text-gray-500 text-sm">
-                Please wait for the next game or ask the presenter to create a new room.
+                Vui lòng chờ trò chơi tiếp theo hoặc nhờ người dẫn tạo phòng mới.
               </p>
             </div>
           </div>
@@ -232,21 +232,21 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
       <main className="min-h-dvh flex items-center justify-center p-4">
         <div className="w-full max-w-sm space-y-4 text-center">
           <h1 className="text-3xl font-bold text-amber-400">
-            THE PRICE WAR
+            CUỘC CHIẾN GIÁ CẢ
           </h1>
           <p className="text-gray-400">
-            Joining room{' '}
+            Tham gia phòng{' '}
             <span className="font-mono text-white">
               {initialRoom.room_code}
             </span>
           </p>
           {joining ? (
-            <p className="text-amber-400">Joining...</p>
+            <p className="text-amber-400">Đang vào...</p>
           ) : (
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder="Your Name"
+                placeholder="Tên của bạn"
                 defaultValue={initialName}
                 maxLength={20}
                 onKeyDown={(e) => {
@@ -281,15 +281,21 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
     return (
       <main className="min-h-dvh flex items-center justify-center p-4 animate-pulse-red">
         <div className="text-center space-y-4 max-w-sm">
-          <h1 className="text-6xl font-bold text-red-400">BANKRUPT</h1>
+          <h1 className="text-6xl font-bold text-red-400">PHÁ SẢN</h1>
           <p className="text-gray-400">
-            Your capital was destroyed by market competition.
+            Vốn của bạn đã bị thị trường nuốt chừng.
           </p>
+          {player.bankrupt_reason && (
+            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+              <p className="text-red-300 text-sm font-medium">Lý do:</p>
+              <p className="text-gray-300 text-sm mt-1">{player.bankrupt_reason}</p>
+            </div>
+          )}
           <p className="text-gray-500 text-lg font-semibold">
-            You are now part of the Proletariat.
+            Bạn giờ là thành viên của giai cấp Vô sản.
           </p>
           <p className="text-gray-600 text-sm">
-            Please look at the projector.
+            Vui lòng nhìn lên màn hình chiếu.
           </p>
         </div>
       </main>
@@ -302,6 +308,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
   const minPrice = player.has_patent
     ? GAME_CONFIG.MIN_PRICE_PATENT
     : GAME_CONFIG.MIN_PRICE_NORMAL
+  const brandName = player.cookie_brand
 
   return (
     <main className="min-h-dvh p-4 max-w-sm mx-auto">
@@ -317,13 +324,14 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
           <div>
             <p className="font-bold text-lg">{player.name}</p>
             <p className="text-gray-400 text-sm">
-              Cost: {productionCost}/unit{' '}
-              {player.has_patent && '[Patent]'}
+              Bán: <span className="text-amber-300 font-semibold">{brandName}</span>
+              {' · '}Chi phí: {productionCost}/lô{' '}
+              {player.has_patent && '[Đã mua bằng SC]'}
             </p>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold text-amber-400">
-              {player.cash} coins
+              {player.cash} xu
             </p>
           </div>
         </div>
@@ -335,19 +343,84 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
         </div>
       )}
 
-      {/* Waiting State */}
+      {/* Waiting State + Tutorial */}
       {room.status === 'LOBBY' && (
-        <div className="flex flex-col items-center justify-center flex-1 py-20">
-          <p className="text-gray-400 text-lg text-center">
-            Waiting for the Presenter to start the game...
-          </p>
+        <div className="space-y-4">
+          <div className="text-center py-4">
+            <p className="text-gray-400 text-lg">
+              Đang chờ Người dẫn bắt đầu trò chơi...
+            </p>
+          </div>
+
+          {/* Tutorial */}
+          <div
+            className="p-5 rounded-2xl border space-y-4"
+            style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}
+          >
+            <h2 className="text-xl font-bold text-amber-400 text-center">
+              📖 Hướng dẫn chơi
+            </h2>
+
+            <div className="space-y-1">
+              <p className="text-white font-semibold">🎯 Mục tiêu</p>
+              <p className="text-gray-400 text-sm">
+                Kiếm được <span className="text-amber-400 font-bold">5.000 xu</span> trước khi hết 3 vòng chơi.
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-white font-semibold">🍪 Bạn là ai?</p>
+              <p className="text-gray-400 text-sm">
+                Bạn là chủ xưởng bánh <span className="text-amber-300 font-semibold">{player.cookie_brand}</span>. Mỗi vòng bạn sẽ <strong className="text-white">nhập hàng</strong> rồi <strong className="text-white">đặt giá bán</strong>.
+              </p>
+            </div>
+
+            <hr className="border-gray-700" />
+
+            <div className="space-y-3">
+              <p className="text-white font-semibold">📋 Mỗi vòng diễn ra như sau:</p>
+
+              <div className="pl-3 border-l-2 border-blue-500 space-y-1">
+                <p className="text-blue-400 font-semibold text-sm">Bước 1 — Nhập hàng 📦</p>
+                <p className="text-gray-400 text-sm">
+                  Bấm nút <strong className="text-white">&quot;Nhập hàng&quot;</strong> để mua 100 lô bánh. Chi phí: <span className="text-red-400 font-bold">1.000 xu</span> (10 xu/lô). Tiền bị trừ ngay.
+                </p>
+              </div>
+
+              <div className="pl-3 border-l-2 border-amber-500 space-y-1">
+                <p className="text-amber-400 font-semibold text-sm">Bước 2 — Đặt giá bán 💰</p>
+                <p className="text-gray-400 text-sm">
+                  Chọn giá bán cho mỗi lô (từ <span className="text-white font-bold">11</span> đến <span className="text-white font-bold">50 xu</span>). Bạn có <span className="text-white font-bold">90 giây</span> để quyết định.
+                </p>
+              </div>
+
+              <div className="pl-3 border-l-2 border-green-500 space-y-1">
+                <p className="text-green-400 font-semibold text-sm">Bước 3 — Thị trường quyết định 📊</p>
+                <p className="text-gray-400 text-sm">
+                  Khách hàng sẽ <strong className="text-green-400">mua từ người bán giá rẻ nhất trước</strong>. Nếu nhiều người cùng giá, ai <strong className="text-white">đặt giá nhanh hơn</strong> sẽ được ưu tiên bán trước.
+                </p>
+              </div>
+            </div>
+
+            <hr className="border-gray-700" />
+
+            <div className="space-y-2">
+              <p className="text-white font-semibold text-sm">⚡ Lưu ý quan trọng</p>
+              <div className="grid grid-cols-1 gap-1.5 text-sm">
+                <p className="text-gray-400">📉 <strong className="text-white">Giá thấp</strong> = dễ bán nhưng lời ít</p>
+                <p className="text-gray-400">📈 <strong className="text-white">Giá cao</strong> = lời nhiều nhưng có thể không ai mua</p>
+                <p className="text-gray-400">💀 <strong className="text-red-400">Hết tiền</strong> = phá sản, bị loại khỏi game</p>
+                <p className="text-gray-400">🏆 <strong className="text-amber-400">5.000 xu</strong> = chiến thắng!</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {room.status === 'GAME_OVER' && (
         <div className="flex flex-col items-center justify-center flex-1 py-20">
           <p className="text-gray-400 text-lg text-center">
-            Game Over! Check the projector for results.
+            Kết thúc! Xem màn hình chiếu để biết kết quả.
           </p>
         </div>
       )}
@@ -366,7 +439,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
             >
               {secondsLeft}s
             </p>
-            <p className="text-gray-400 text-sm">Round {roundNumber}</p>
+            <p className="text-gray-400 text-sm">Vòng {roundNumber}</p>
           </div>
 
           {/* Stock Up */}
@@ -377,21 +450,21 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
               className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg transition disabled:opacity-50"
             >
               {loading
-                ? 'Stocking up...'
-                : `Stock Up (100 units, -${
+                ? 'Đang nhập hàng...'
+                : `Nhập hàng (100 lô ${brandName}, -${
                     productionCost * GAME_CONFIG.UNITS_PER_STOCK
-                  } coins)`}
+                  } xu)`}
             </button>
           ) : (
             <>
               <div className="p-3 rounded-xl bg-green-500/20 border border-green-500/50 text-green-400 text-center text-sm">
-                Stocked up! 100 units ready to sell.
+                Đã nhập hàng! 100 lô {brandName} sẵn sàng bán.
               </div>
 
               {/* Price Input */}
               <div className="space-y-3">
                 <label className="block text-center text-gray-400">
-                  Set Your Price Per Unit
+                  Đặt giá mỗi lô {brandName}
                 </label>
                 <input
                   type="number"
@@ -412,17 +485,17 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                 {/* Validation warnings */}
                 {price && parseInt(price) > GAME_CONFIG.ROUND_3_PRICE_CEILING && (
                   <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-sm text-center">
-                    Customers won&apos;t buy at this price! Max: {GAME_CONFIG.ROUND_3_PRICE_CEILING} coins/unit
+                    Khách hàng sẽ không mua với giá này! Tối đa: {GAME_CONFIG.ROUND_3_PRICE_CEILING} xu/lô
                   </div>
                 )}
                 {price && parseInt(price) > 0 && parseInt(price) < minPrice && (
                   <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-sm text-center">
-                    Below production cost! You will lose money on every unit sold.
+                    Dưới giá thành! Bạn sẽ lỗ với mỗi lô bán ra.
                   </div>
                 )}
                 {!price && (
                   <p className="text-gray-500 text-sm text-center">
-                    Valid range: {minPrice} – {GAME_CONFIG.ROUND_3_PRICE_CEILING} coins/unit
+                    Khoảng hợp lệ: {minPrice} – {GAME_CONFIG.ROUND_3_PRICE_CEILING} xu/lô
                   </p>
                 )}
                 <button
@@ -437,12 +510,12 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                   }`}
                 >
                   {secondsLeft <= 0
-                    ? 'Time\'s Up!'
+                    ? 'Hết giờ!'
                     : loading
-                    ? 'Submitting...'
+                    ? 'Đang gửi...'
                     : bidSubmitted
-                    ? `Bid Updated: ${price} coins/unit`
-                    : 'Submit Bid'}
+                    ? `Đã cập nhật: ${price} xu/lô`
+                    : 'Gửi giá'}
                 </button>
               </div>
             </>
@@ -461,17 +534,17 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
             }}
           >
             <h2 className="text-2xl font-bold text-purple-400">
-              NEW TECHNOLOGY INVENTED
+              CÔNG NGHỆ MỚI ĐƯỢC PHÁT MINH
             </h2>
             <p className="text-gray-400 mt-2">
-              Lowers your production cost to{' '}
-              <span className="text-green-400 font-bold">5</span> per unit
+              Giảm chi phí sản xuất xuống còn{' '}
+              <span className="text-green-400 font-bold">5</span> mỗi lô
             </p>
             <p className="text-amber-400 font-bold text-xl mt-2">
-              Cost: 600 Coins
+              Giá: 600 Xu
             </p>
             <p className="text-gray-500 mt-2">
-              Patents Remaining:{' '}
+              Bằng sáng chế còn lại:{' '}
               <span className="text-white font-bold">
                 {room.patents_available - room.patents_sold}
               </span>{' '}
@@ -481,7 +554,7 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
 
           {player.has_patent ? (
             <div className="p-4 rounded-xl bg-green-500/20 border border-green-500/50 text-green-400 text-center font-bold">
-              You own a Tech Patent!
+              Bạn đã sở hữu Bằng sáng chế!
             </div>
           ) : (
             <button
@@ -494,12 +567,12 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
               className="w-full py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xl transition disabled:opacity-50"
             >
               {loading
-                ? 'Buying...'
+                ? 'Đang mua...'
                 : room.patents_sold >= room.patents_available
-                ? 'Sold Out'
+                ? 'Hết hàng'
                 : player.cash < 600
-                ? 'Not Enough Cash'
-                : 'Buy Tech Patent (600 Coins)'}
+                ? 'Không đủ xu'
+                : 'Mua Bằng Sáng Chế (600 Xu)'}
             </button>
           )}
         </div>
@@ -524,24 +597,24 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                     : 'text-red-400'
                 }`}
               >
-                {lastRoundResult.unitsSold > 0 ? 'SALES MADE!' : 'NO SALES'}
+                {lastRoundResult.unitsSold > 0 ? 'ĐÃ BÁN ĐƯỢC!' : 'KHÔNG BÁN ĐƯỢC'}
               </h2>
               <div className="space-y-1 text-left max-w-xs mx-auto">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Units Sold:</span>
+                  <span className="text-gray-400">Số lô đã bán:</span>
                   <span className="font-bold">
                     {lastRoundResult.unitsSold} /{' '}
                     {GAME_CONFIG.UNITS_PER_STOCK}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Revenue:</span>
+                  <span className="text-gray-400">Doanh thu:</span>
                   <span className="font-bold text-green-400">
                     +{lastRoundResult.revenue}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Net Profit:</span>
+                  <span className="text-gray-400">Lợi nhuận ròng:</span>
                   <span
                     className={`font-bold ${
                       lastRoundResult.profit >= 0
@@ -555,9 +628,9 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                 </div>
                 <hr className="border-gray-700" />
                 <div className="flex justify-between">
-                  <span className="text-gray-400">New Balance:</span>
+                  <span className="text-gray-400">Số dư mới:</span>
                   <span className="font-bold text-amber-400 text-lg">
-                    {player.cash} coins
+                    {player.cash} xu
                   </span>
                 </div>
               </div>
@@ -570,12 +643,12 @@ export default function PlayerClient({ initialRoom, initialName }: Props) {
                 borderColor: 'var(--card-border)',
               }}
             >
-              <p className="text-gray-400">Waiting for results...</p>
+              <p className="text-gray-400">Đang chờ kết quả...</p>
             </div>
           )}
 
           <p className="text-gray-500 text-center text-sm">
-            Waiting for the Presenter to advance...
+            Đang chờ Người dẫn chuyển tiếp...
           </p>
         </div>
       )}

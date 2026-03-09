@@ -2,6 +2,7 @@
 
 import { createServerClient } from '@/lib/supabase/server'
 import type { Player } from '@/lib/types/database'
+import { getRandomBrand } from '@/lib/types/game'
 
 export async function joinRoom(roomId: string, playerName: string): Promise<Player> {
   const supabase = createServerClient()
@@ -13,8 +14,8 @@ export async function joinRoom(roomId: string, playerName: string): Promise<Play
     .eq('id', roomId)
     .single()
 
-  if (roomError || !room) throw new Error('Room not found')
-  if (room.status !== 'LOBBY') throw new Error('Game already in progress')
+  if (roomError || !room) throw new Error('Không tìm thấy phòng')
+  if (room.status !== 'LOBBY') throw new Error('Trò chơi đã bắt đầu')
 
   // Check for duplicate name
   const { data: existing } = await supabase
@@ -24,7 +25,7 @@ export async function joinRoom(roomId: string, playerName: string): Promise<Play
     .eq('name', playerName.trim())
     .single()
 
-  if (existing) throw new Error('Name already taken')
+  if (existing) throw new Error('Tên đã được sử dụng')
 
   const { data, error } = await supabase
     .from('players')
@@ -32,11 +33,12 @@ export async function joinRoom(roomId: string, playerName: string): Promise<Play
       room_id: roomId,
       name: playerName.trim(),
       cash: 1000,
+      cookie_brand: getRandomBrand(),
     })
     .select()
     .single()
 
-  if (error) throw new Error(`Failed to join room: ${error.message}`)
+  if (error) throw new Error(`Không thể tham gia phòng: ${error.message}`)
   return data as Player
 }
 

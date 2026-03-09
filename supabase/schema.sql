@@ -37,6 +37,8 @@ CREATE TABLE players (
   has_patent BOOLEAN NOT NULL DEFAULT false,
   is_bankrupt BOOLEAN NOT NULL DEFAULT false,
   has_stocked_up BOOLEAN NOT NULL DEFAULT false,
+  cookie_brand TEXT NOT NULL DEFAULT 'OREO',
+  bankrupt_reason TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
