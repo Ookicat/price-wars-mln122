@@ -13,7 +13,7 @@ import {
 } from '@/lib/actions/game-actions'
 import { createBrowserClient } from '@/lib/supabase/client'
 import type { Room, Player } from '@/lib/types/database'
-import { GAME_CONFIG, getRoundNumber } from '@/lib/types/game'
+import { GAME_CONFIG, getRoundNumber, calculateDemand } from '@/lib/types/game'
 
 interface Props {
   initialRoom: Room
@@ -242,6 +242,12 @@ export default function PresenterDashboard({
               Người chơi đang mua bằng sáng chế trên điện thoại...
             </p>
           </div>
+          <div className="p-4 rounded-xl border space-y-1" style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}>
+            <p className="text-green-400 font-semibold text-sm">📊 Vòng tiếp theo</p>
+            <p className="text-gray-400 text-sm">
+              Nhu cầu thị trường: <span className="text-white font-bold">{calculateDemand(2, activePlayers.length, activePlayers.filter(p => p.has_patent).length + room.patents_sold)} lô</span>
+            </p>
+          </div>
           <button
             onClick={() => handleAction(() => startRound(room.id, 2))}
             disabled={loading}
@@ -361,15 +367,24 @@ export default function PresenterDashboard({
               return (
                 <>
                   {room.status === 'ROUND_1_RESULTS' && (
-                    <button
-                      onClick={() =>
-                        handleAction(() => openPatentShop(room.id))
-                      }
-                      disabled={loading}
-                      className="flex-1 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xl transition disabled:opacity-50"
-                    >
-                      {loading ? 'Đang mở...' : 'Mở cửa hàng Bằng SC'}
-                    </button>
+                    <>
+                      <div className="w-full p-4 rounded-xl border space-y-1" style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}>
+                        <p className="text-purple-400 font-semibold text-sm">🔬 Vòng tiếp theo</p>
+                        <p className="text-gray-400 text-sm">
+                          Số bằng sáng chế sẽ bán: <span className="text-white font-bold">{Math.floor(activePlayers.length / 2)}</span> / {activePlayers.length} người chơi
+                        </p>
+                        <p className="text-gray-500 text-xs">Giảm chi phí sản xuất từ 10 → 5 xu/lô · Giá: 600 xu</p>
+                      </div>
+                      <button
+                        onClick={() =>
+                          handleAction(() => openPatentShop(room.id))
+                        }
+                        disabled={loading}
+                        className="flex-1 py-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xl transition disabled:opacity-50"
+                      >
+                        {loading ? 'Đang mở...' : 'Mở cửa hàng Bằng SC'}
+                      </button>
+                    </>
                   )}
                   {room.status === 'ROUND_2_RESULTS' && (
                     <>
@@ -382,6 +397,12 @@ export default function PresenterDashboard({
                           {loading ? 'Đang kết thúc...' : 'Kết thúc (Có người thắng sớm!)'}
                         </button>
                       )}
+                      <div className="w-full p-4 rounded-xl border space-y-1" style={{ background: 'var(--card)', borderColor: 'var(--card-border)' }}>
+                        <p className="text-green-400 font-semibold text-sm">📊 Vòng tiếp theo</p>
+                        <p className="text-gray-400 text-sm">
+                          Nhu cầu thị trường: <span className="text-white font-bold">{calculateDemand(3, activePlayers.length, 0)} lô</span>
+                        </p>
+                      </div>
                       <button
                         onClick={() =>
                           handleAction(() => startRound(room.id, 3))
