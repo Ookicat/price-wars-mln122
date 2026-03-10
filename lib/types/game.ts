@@ -35,7 +35,10 @@ export function calculateDemand(
       const baseDemand = (totalPlayers * 100) / 2;
       return Math.ceil(baseDemand / 100) * 100;
     case 2:
-      return patentHolders * 100 + 200
+        if (patentHolders === 2) {
+            return patentHolders * 100 + 100
+        }
+        return patentHolders * 100 + 200
     case 3:
       return totalPlayers * 100
     default:
